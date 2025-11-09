@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Scout Registration Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to bottom, #d8bfd8, #e6e6fa);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #800080;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 36px;
+            text-shadow: 1px 1px 3px #ccc;
+        }
+
+        .form-container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 400px;
+            transition: transform 0.3s;
+        }
+
+        .form-container:hover {
+            transform: translateY(-5px);
+        }
+
+        h2 {
+            text-align: center;
+            color: #800080;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            border-color: #800080;
+            box-shadow: 0 0 5px #d8bfd8;
+            outline: none;
+        }
+
+        input[type="submit"] {
+            background-color: #800080;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 15px;
+            width: 100%;
+            margin-top: 20px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #a020f0;
+            transform: scale(1.05);
+        }
+
+        .success-message {
+            text-align: center;
+            margin-top: 20px;
+            color: white;
+            background-color: #800080;
+            padding: 10px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .registrations {
+            margin-top: 30px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .registrations h3 {
+            text-align: center;
+            color: #800080;
+            margin-bottom: 15px;
+        }
+
+        .registrations ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .registrations li {
+            background-color: #f5f5ff;
+            margin-bottom: 10px;
+            padding: 12px;
+            border-radius: 15px;
+            transition: background-color 0.3s, transform 0.2s;
+            cursor: pointer;
+        }
+
+        .registrations li:hover {
+            background-color: #e6e6fa;
+            transform: scale(1.02);
+        }
+
+        /* Highlight newest registration */
+        .highlight {
+            background-color: #ffe6f0 !important;
+            animation: fadeHighlight 3s forwards;
+        }
+
+        @keyframes fadeHighlight {
+            0% { background-color: #ffe6f0; }
+            100% { background-color: #f5f5ff; }
+        }
+
+        @media (max-width: 500px) {
+            body {
+                padding: 10px;
+            }
+            .form-container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>BRIKAMA BA SCOUT</h1>
+
+    <div class="form-container">
+        <h2>Scout Registration</h2>
+        <form id="scoutForm">
+            <label for="fullname">Full Name</label>
+            <input type="text" id="fullname" name="fullname" placeholder="Enter your full name" required>
+
+            <label for="age">Age</label>
+            <input type="number" id="age" name="age" placeholder="Enter your age" min="6" max="18" required>
+
+            <label for="phone">Telephone Number</label>
+            <input type="text" id="phone" name="phone" placeholder="Enter your telephone number" required pattern="[0-9]{8,15}" title="Enter a valid phone number">
+
+            <label for="gender">Gender</label>
+            <select id="gender" name="gender" required>
+                <option value="">Select your gender</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+            </select>
+
+            <label for="troop">Scout Troop</label>
+            <input type="text" id="troop" name="troop" placeholder="Enter your troop name" required>
+
+            <input type="submit" value="Register">
+        </form>
+        <div class="success-message" id="successMessage">
+            Registration successful! Welcome to the Scouts.
+        </div>
+    </div>
+
+    <div class="registrations">
+        <h3>Registered Scouts</h3>
+        <ul id="registrationsList"></ul>
+    </div>
+
+    <script>
+        const form = document.getElementById('scoutForm');
+        const successMessage = document.getElementById('successMessage');
+        const registrationsList = document.getElementById('registrationsList');
+
+        let registrations = JSON.parse(localStorage.getItem('scouts')) || [];
+
+        function displayRegistrations(highlightIndex = null) {
+            registrationsList.innerHTML = '';
+            // newest registration first
+            registrations.slice().reverse().forEach((scout, index) => {
+                const li = document.createElement('li');
+                li.textContent = `${scout.fullname}, Age: ${scout.age}, Phone: ${scout.phone}, Gender: ${scout.gender}, Troop: ${scout.troop}`;
+                if (index === highlightIndex) {
+                    li.classList.add('highlight'); // highlight newest
+                }
+                registrationsList.appendChild(li);
+            });
+        }
+
+        displayRegistrations();
+
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const fullname = document.getElementById('fullname').value;
+            const age = document.getElementById('age').value;
+            const phone = document.getElementById('phone').value;
+            const gender = document.getElementById('gender').value;
+            const troop = document.getElementById('troop').value;
+
+            const newScout = { fullname, age, phone, gender, troop };
+            registrations.push(newScout);
+
+            localStorage.setItem('scouts', JSON.stringify(registrations));
+            displayRegistrations(0); // highlight newest (first item after reverse)
+
+            successMessage.style.display = 'block';
+            form.reset();
+
+            setTimeout(() => {
+                successMessage.style.display = 'none';
+            }, 3000);
+        });
+    </script>
+</body>
+</html>
